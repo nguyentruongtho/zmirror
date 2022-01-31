@@ -1,11 +1,13 @@
 # coding=utf-8
-import os
+import base64
 import re
 import zlib
-import base64
+
+import requests
 from fnmatch import fnmatch
 from html import escape as html_escape
 from urllib.parse import urljoin, urlsplit, urlunsplit, quote_plus
+
 from flask import make_response, Response
 
 try:
@@ -21,7 +23,12 @@ except:
 from . import CONSTS
 
 from config_default import *
+from config_global import *
 from config import *
+
+if developer_do_not_verify_ssl:
+    from requests.packages.urllib3.exceptions import InsecureRequestWarning
+    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
 def zmirror_root(filename):
