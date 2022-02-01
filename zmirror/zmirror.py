@@ -20,7 +20,7 @@ from datetime import datetime, timedelta
 from urllib.parse import urljoin, urlsplit, urlunsplit, quote_plus
 import urllib.parse
 import requests
-from flask import Flask, request, make_response, Response, redirect
+from flask import Flask, request, make_response, Response, redirect, send_from_directory
 from . import CONSTS
 
 try:
@@ -2403,6 +2403,12 @@ def ip_ban_verify_page():
 @app.route('/', methods=['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE', 'HEAD', 'PATCH'])
 @app.route('/<path:input_path>', methods=['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE', 'HEAD', 'PATCH'])
 def zmirror_enter(input_path='/'):
+    if input_path.startswith(static_url_path):
+        static_file = os.path.join('target_domains', target_domain, static_path, input_path[len(static_url_path):])
+        if not os.path.isfile(static_file):
+            static_file = os.path.join(static_path, input_path[len(static_url_path):])
+        return send_from_directory(os.getcwd(), static_file)
+
     """入口函数的壳, 只是包了一层异常处理, 实际是 main_function() """
     try:
         resp = main_function(input_path=input_path)

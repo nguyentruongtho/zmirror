@@ -630,7 +630,7 @@ mime_to_use_cdn = {
     'text/css': 'css',  # css
     # img
     'image/gif': 'gif', 'image/jpg': 'jpg', 'image/jpeg': 'jpg', 'image/png': 'png',
-    'image/svg+xml': 'svg', 'image/webp': 'webp',
+    'image/svg+xml': 'svg', 'image/webp': 'webp', 'image/x-icon': 'ico',
     # Fonts
     'application/vnd.ms-fontobject': 'eot', 'font/eot': 'eot', 'font/opentype': 'woff',
     'application/x-font-ttf': 'woff',
