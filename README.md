@@ -21,6 +21,31 @@ an http reverse proxy designed to automatically and completely mirror a website 
 请不要大量使用...demo服务器马上要爆炸了- -|  
 
 
+## Per-target configuration
+
+This fork loads settings in three layers, each overriding the previous one:
+
+1. `config_default.py` — upstream defaults, not to be edited.
+2. `config_global.py` — deployment settings read from environment variables.
+3. `target_domains/<TARGET_DOMAIN>/` — everything specific to one mirrored site.
+
+The third layer is prepended to `sys.path` at startup, so a target directory can
+supply its own `config.py` and `custom_func.py`, plus an optional
+`domain_handler.py` whose `page` blueprint is registered on the app, and a
+`static/` directory served under `/_s/`.
+
+`target_domains/` is intentionally **not** tracked here — it holds site-specific
+rules and credentials and lives in a separate private repository. Clone it into
+place before running:
+
+```sh
+git clone --recursive <private-repo-url> target_domains
+```
+
+A `config` module has to be importable from one of those layers, so either
+provide a target directory or drop a `config.py` at the repository root.
+
+
 ## Demo
 
 * **Google**  

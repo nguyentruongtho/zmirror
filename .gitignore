@@ -1,9 +1,14 @@
+**/.DS_Store
 /mwmdb.sqlite3
 ### Project Special
 /custom_func.py
 /config.py
 /test/sample
 /ip_whitelist.txt
+# Per-target configuration, kept in a separate private repository
+/target_domains/
+**/node_modules
+**/package-lock.json
 ### Vim template
 # swap
 [._]*.s[a-w][a-z]

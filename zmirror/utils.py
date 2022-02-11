@@ -24,7 +24,12 @@ from . import CONSTS
 
 from config_default import *
 from config_global import *
-from config import *
+
+try:
+    from config import *
+except:  # coverage: exclude
+    print('There is no specific config for this domain')
+    raise
 
 if developer_do_not_verify_ssl:
     from requests.packages.urllib3.exceptions import InsecureRequestWarning
