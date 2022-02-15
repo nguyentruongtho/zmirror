@@ -49,3 +49,4 @@ if not human_ip_verification_questions and 'DEFAULT_VERIFICATION_ANSWER' in os.e
 human_ip_verification_enabled = True if human_ip_verification_questions or human_ip_verification_identity_record else False
 
 developer_do_not_verify_ssl = True
+headers_to_cache = []

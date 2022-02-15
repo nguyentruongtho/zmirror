@@ -4,3 +4,4 @@ cchardet>=1.0
 fastcache>=1.0.2
 codeclimate-test-reporter
 lru-dict>=1.1.5
+redis==4.1.3

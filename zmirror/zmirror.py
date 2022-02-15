@@ -19,6 +19,8 @@ from html import escape as html_escape
 from datetime import datetime, timedelta
 from urllib.parse import urljoin, urlsplit, urlunsplit, quote_plus
 import urllib.parse
+
+import redis
 import requests
 from flask import Flask, request, make_response, Response, redirect, send_from_directory
 from . import CONSTS
@@ -215,6 +217,9 @@ if not human_ip_verification_whitelist_from_cookies and not enable_custom_access
 # ########### Global Variables ###############
 # 与flask的request变量功能类似, 存储了一些解析后的请求信息, 在程序中会经常被调用
 parse = ZmirrorThreadLocal()
+
+redis_url = os.environ.get('REDIS_URL', None)
+redis_client = redis.from_url(redis_url, decode_responses=True) if redis_url else None
 
 # task_scheduler
 task_scheduler = sched.scheduler(time, sleep)
@@ -2474,6 +2479,18 @@ def main_function(input_path='/'):
 
     # 提取出经过必要重写后的浏览器请求头
     parse.client_header = extract_client_header()  # type: dict
+
+    cached_client_headers = {}
+    if redis_client:
+        cachable_client_headers = {
+                    name: parse.client_header[name] for name in parse.client_header.keys() if name.lower() in headers_to_cache }
+        if redis_client.exists(target_domain):
+            cached_client_headers = redis_client.hgetall(target_domain)
+        if len(cached_client_headers) < len(cachable_client_headers):
+            cached_client_headers = cachable_client_headers
+            redis_client.hmset(target_domain, cached_client_headers)
+    dbgprint('CachedBrowserClientRequestHeaders:', cached_client_headers)
+    parse.client_header.update(cached_client_headers)
 
     # 对用户请求进行第二级重定向(隐式重写后的重定向)
     # 与一级重定向一样, 是301/302/307重定向
