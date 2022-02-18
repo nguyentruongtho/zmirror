@@ -223,6 +223,11 @@ def is_domain_match_glob_whitelist(domain):
     :type domain: str
     :rtype: bool
     """
+    if domains_whitelist_auto_remove_glob_list:
+        for domain_glob in domains_whitelist_auto_remove_glob_list:
+            if fnmatch(domain, domain_glob):
+                return False
+        return True
     for domain_glob in domains_whitelist_auto_add_glob_list:
         if fnmatch(domain, domain_glob):
             return True

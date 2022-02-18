@@ -18,6 +18,8 @@ external_domains = tuple(x for x in os.environ.get('EXTERNAL_DOMAINS', '').split
 force_https_domains = os.environ.get('FORCE_HTTPS_DOMAIN', 'NONE')
 
 enable_automatic_domains_whitelist = True
+domains_whitelist_auto_remove_glob_list = tuple(
+    x for x in os.environ.get('DOMAIN_WHITELIST_ARGL', '').split('|') if x != '')
 domains_whitelist_auto_add_glob_list = tuple(
     x for x in os.environ.get('DOMAIN_WHITELIST_AAGL', '').split('|') if x != '')
 
