@@ -79,15 +79,10 @@ except:  # coverage: exclude
 try:  # 加载用户自定义配置文件, 覆盖掉默认配置的同名项
     from config import *
 except:  # coverage: exclude
-    errprint(
-        'the config_default.py is missing, fallback to default configs(if we can), '
-        'please COPY the config_default.py to config.py, and change it\'s content, '
-        'or use the configs in the more_configs folder\n'
-        '自定义配置文件 config.py 丢失或存在错误, 将使用默认设置, 请将 config_default.py 复制一份为 config.py, '
-        '并根据自己的需求修改里面的设置'
-        '(或者使用 more_configs 中的配置文件)'
-    )
-    raise  # v0.23.1+ 当config文件存在错误或不存在时, 程序会终止运行
+    # A config.py at the repository root is optional here: per-target settings
+    # live in target_domains/<TARGET_DOMAIN>/config.py, which utils.py loads and
+    # which is where a missing config is reported from.
+    pass
 else:
     target_domain = target_domain.strip("./ \t").replace("https://", "").replace("http://", "")
     infoprint('config file found, mirroring: ', target_domain)
