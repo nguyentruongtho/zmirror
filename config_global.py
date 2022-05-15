@@ -4,6 +4,43 @@ import os
 static_path = 'static'
 static_url_path = os.path.join('_s', '')
 
+custom_inject_content = {
+    "head_first": [],
+    "head_last": [],
+}
+
+all_injection_plugins = {
+    'BLOCK_POPUP': {
+        'head_first': [{
+            "content": r'''
+            <script type="text/javascript" src="/_s/popupblocker/installation.js"></script>
+            <script type="text/javascript" src="https://userscripts.adtidy.org/release/popup-blocker/2.5/popupblocker.user.js"></script>''',
+            "url_regex": None,
+        }]
+    },
+    'XHR_MIRROR': {
+        'head_first': [{
+            "content": r'''<script type="text/javascript"">
+(function() {
+  const open = XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+    if (!url.includes(window.location.host)) {
+        var prepend = window.location.protocol + "//" + window.location.host + "/extdomains/";
+        url = url.replace("https://", prepend);
+        url = url.replace("http://", prepend);
+        console.log(url);
+    }
+    return open.call(this, method, url, ...rest);
+  };
+})();
+            </script>''',
+            "url_regex": None,
+        }]
+    }
+}
+
+injection_plugins = [all_injection_plugins[x] for x in os.environ.get('INJECTION_PLUGINS', '').split(',')
+                     if x in all_injection_plugins]
 # #####################################################
 # ################## BASIC Settings ###################
 # #####################################################

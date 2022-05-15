@@ -376,8 +376,10 @@ regex_remove__zmirror_verify__header = re.compile(
 # 遍历编译 custom_inject_content 中的regex
 custom_inject_content = custom_inject_content or {}
 for k, v in custom_inject_content.items():
-    if not v:
+    if not isinstance(v, list):
         continue
+    for plugin in injection_plugins:
+        v += plugin.get(k, [])
     for a in v:
         if a.get("url_regex") is None:
             continue
