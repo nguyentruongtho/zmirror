@@ -288,14 +288,14 @@ regex_cookie_rewriter = re.compile(r'\bdomain=(\.?([\w-]+\.)+\w+)\b', flags=re.I
 regex_cookie_path_rewriter = re.compile(r'(?P<prefix>[pP]ath)=(?P<path>[\w\._/-]+?;)')
 
 # Request Domains Rewriter, see client_requests_text_rewrite()
-# 该正则用于匹配类似于下面的东西
-#   [[[http(s):]//]www.mydomain.com/]extdomains/(https-)target.com
-# 兼容各种urlencode/escape
+# This regular expression is used to match something like the following
+# [[[http(s):]//]www.mydomain.com/]extdomains/(https-)target.com
+# Compatible with various urlencode/escape
 #
-# 注意, 若想阅读下面的正则表达式, 请一定要在 Pycharm 的正则高亮下进行
-# 否则不对可能的头晕/恶心负责
-# 下面那个正则, 在组装以后的样子大概是这样的(已大幅简化):
-# 假设b.test.com是本机域名
+# Note, if you want to read the regular expression below, please be sure to do it under Pycharm's regular expression highlighting
+# Otherwise, I am not responsible for possible dizziness/nausea
+# The following regular expression, after assembly, looks like this (has been greatly simplified):
+# Assume that b.test.com is the local domain name
 #   ((https?:/{2})?b\.test\.com/)?extdomains/(https-)?((?:[\w-]+\.)+\w+)\b
 #
 # 对应的 unittest 见 TestRegex.test__regex_request_rewriter_extdomains()
@@ -323,10 +323,10 @@ regex_request_rewriter_extdomains = re.compile(
 regex_request_rewriter_main_domain = re.compile(REGEX_MY_HOST_NAME)
 
 
-# 以下正则为*实验性*的 response_text_basic_rewrite() 的替代品
-# 用于函数 response_text_basic_mirrorlization()
-# 理论上, 在大量域名的情况下, 会比现有的暴力字符串替换要快, 并且未来可以更强大的域名通配符
-# v0.28.0加入, v0.28.3后默认启用
+# The following regular expression is an *experimental* replacement for response_text_basic_rewrite()
+# Used in the function response_text_basic_mirrorlization()
+# Theoretically, in the case of a large number of domain names, it will be faster than the existing brute force string replacement, and more powerful domain name wildcards can be used in the future
+# Added in v0.28.0, enabled by default after v0.28.3
 def _regex_generate__basic_mirrorlization():
     """产生 regex_basic_mirrorlization
     用一个函数包裹起来是因为在 try_match_and_add_domain_to_rewrite_white_list()
@@ -396,22 +396,22 @@ app = Flask(  # type: Flask
 # ########## Begin Utils #############
 def response_text_basic_mirrorlization(text):
     """
-    response_text_basic_rewrite() 的实验性升级版本, 默认启用
+    An experimental upgraded version of response_text_basic_rewrite(), enabled by default
 
     *v0.28.1.dev*
-        之前版本是在正则中匹配所有允许的域名, 现在改为匹配所有可能允许的TLD,
-        可以带来一些性能的提升, 并且容易进行动态域名添加和通配符支持
+    The previous version matched all allowed domain names in the regular expression, but now it matches all possible TLDs,
+    which can bring some performance improvements, and it is easy to add dynamic domain names and support wildcards
 
     *v0.28.2*
-        进一步优化正则, 性能提升 47% 左右 (速度约为传统暴力替换的4.4倍)
+    Further optimize the regular expression, performance improvement of about 47% (the speed is about 4.4 times that of traditional brute force replacement)
 
     *v0.28.3*
-        目前来看该功能工作得相当好, 由实验性特性改为正式使用
-        移除旧版 response_text_basic_rewrite(), 只保留一个为了向下兼容的 alias
+    At present, this function works quite well, and it has been changed from an experimental feature to official use
+    Remove the old version of response_text_basic_rewrite(), and only keep an alias for backward compatibility
 
-    :param text: 远程响应文本
+    :param text: remote response text
     :type text: str
-    :return: 重写后的响应文本
+    :return: rewritten response text
     :rtype: str
     """
 
@@ -430,10 +430,10 @@ def response_text_basic_mirrorlization(text):
         _my_host_name = my_host_name.replace(":", colon) if my_host_port else my_host_name
 
         if remote_domain not in domain_alias_to_target_set:
-            # 外部域名
+            # External domain name
             core = _my_host_name + slash + "extdomains" + slash + remote_domain + suffix_slash
         else:
-            # 主域名
+            # Primary domain name
             core = _my_host_name + suffix_slash
 
         quote = get_group("quote", m)
@@ -646,11 +646,10 @@ def try_match_and_add_domain_to_rewrite_white_list(domain, force_add=False):
 
 def decode_mirror_url(mirror_url=None):
     """
-    解析镜像url(可能含有extdomains), 并提取出原始url信息
-    可以不是完整的url, 只需要有 path 部分即可(query_string也可以有)
-    若参数留空, 则使用当前用户正在请求的url
-    支持json (处理 \/ 和 \. 的转义)
-
+    Parse the mirror url (may contain extdomains) and extract the original url information
+    It may not be a complete url, only the path part is needed (query_string can also have it)
+    If the parameter is left blank, the url currently being requested by the user is used
+    Supports json (handles \/ and \. escapes)
     :rtype: dict[str, Union[str, bool]]
     :return: {'domain':str, 'is_https':bool, 'path':str, 'path_query':str}
     """
@@ -1740,8 +1739,10 @@ def extract_url_path_and_query(full_url=None, no_query=False):
 
 # ################# Begin Middle Functions #################
 def send_request(url, method='GET', headers=None, param_get=None, data=None):
-    """实际发送请求到目标服务器, 对于重定向, 原样返回给用户
-    被request_remote_site_and_parse()调用"""
+    """
+    Actually sends the request to the target server. For redirection, returns it to the user as is.
+    Called by request_remote_site_and_parse()
+    """
     final_hostname = urlsplit(url).netloc
     dbgprint('FinalRequestUrl', url, 'FinalHostname', final_hostname)
     # Only external in-zone domains are allowed (SSRF check layer 2)
@@ -2003,11 +2004,11 @@ def guess_correct_domain(depth=7):
 
 def request_remote_site():
     """
-    请求远程服务器(high-level), 并在返回404/500时进行 domain_guess 尝试
+    Request remote server (high-level), and try domain_guess when 404/500 is returned
     """
 
-    # 请求被镜像的网站
-    # 注意: 在zmirror内部不会处理重定向, 重定向响应会原样返回给浏览器
+    # Request the mirrored website
+    # Note: Redirects are not processed inside zmirror, and the redirect response will be returned to the browser as is
     parse.remote_response = send_request(
         parse.remote_url,
         method=request.method,
@@ -2020,7 +2021,7 @@ def request_remote_site():
                   'does no equals our rewrited url', parse.remote_url)
 
     if 400 <= parse.remote_response.status_code <= 599:
-        # 猜测url所对应的正确域名
+        # Guess the correct domain name corresponding to the url
         dbgprint("Domain guessing for", request.url)
         result = guess_correct_domain()
         if result is not None:
@@ -2028,7 +2029,7 @@ def request_remote_site():
 
 
 def filter_client_request():
-    """过滤用户请求, 视情况拒绝用户的访问
+    """Filter user requests, deny user access as appropriate
     :rtype: Union[Response, None]
     """
     dbgprint('Client Request Url: ', request.url)
@@ -2196,11 +2197,13 @@ def assemble_parse():
 
 def rewrite_client_request():
     """
-    在这里的所有重写都只作用程序内部, 对请求者不可见
-    与 prior_request_redirect() 的外部301/307重定向不同,
-    本函数通过改变程序内部变量来起到重定向作用
-    返回True表示进行了重定向, 需要重载某些设置, 返回False表示未重定向
-    遇到重写后, 不会跳出本函数, 而是会继续下一项. 所以重写顺序很重要
+    All rewrites here only work inside the program and are not visible to the requester
+    Unlike the external 301/307 redirection of prior_request_redirect(),
+    This function plays a redirection role by changing the internal variables of the program
+    Return True to indicate that redirection has been performed, and some settings need to be reloaded,
+    and return False to indicate no redirection
+    After rewriting, it will not jump out of this function, but will continue to the next item.
+    So the order of rewriting is very important
     """
     has_been_rewrited = False
 
@@ -2300,24 +2303,25 @@ def ip_ban_verify_page():
                 request.args.get('origin'))
 
         return r"""<!doctype html>
-        <html lang="zh-CN">
+        <html lang="en-US">
         <head>
         <meta charset="UTF-8">
         <title>%s</title>
         </head>
         <body>
           <h1>%s</h1>
-          <p>这样的验证只会出现一次，通过后您会被加入白名单，之后相同IP的访问不会再需要验证。<br/>
-          提示: 由于手机和宽带IP经常会发生改变，您可能会多次看到这一页面。</p>
+          <p>This verification will only occur once. After passing the verification, you will be added to the whitelist. 
+          After that, access to the same IP will no longer require verification.<br/>
+          Note: You may see this page multiple times as mobile and broadband IPs change frequently.</p>
           %s <br>
           <pre style="border: 1px dashed;">%s</pre>
-          <form method='post'>%s<button type='submit'>递交</button>
+          <form method='post'>%s<button type='submit'>Go</button>
           </form>
         </body>
         </html>""" % (
             html_escape(human_ip_verification_title), html_escape(human_ip_verification_title),
-            ("只需要回答出以下<b>任意一个</b>问题即可" if human_ip_verification_answer_any_one_questions_is_ok
-             else "你需要回答出以下<b>所有问题</b>"),
+            ("Just answer <b>any</b> of the following questions" if human_ip_verification_answer_any_one_questions_is_ok
+             else "You need to answer <b>ALL of the following questions</b>"),
             human_ip_verification_description, form_body)
 
     elif request.method == 'POST':
@@ -2409,7 +2413,8 @@ def zmirror_enter(input_path='/'):
             static_file = os.path.join(static_path, input_path[len(static_url_path):])
         return send_from_directory(os.getcwd(), static_file)
 
-    """入口函数的壳, 只是包了一层异常处理, 实际是 main_function() """
+    """The shell of the entry function just wraps a layer of exception handling,
+    which is actually main_function()"""
     try:
         resp = main_function(input_path=input_path)
 
@@ -2441,20 +2446,20 @@ def main_function(input_path='/'):
     parse.method = request.method
     parse.time["start_time"] = process_time()  # to display compute time
 
-    # 将用户请求的URL解析为对应的目标服务器URL
+    # Parse the URL requested by the user into the corresponding target server URL
     assemble_parse()
 
-    # 对用户请求进行检查和过滤
-    # 不符合条件的请求(比如爬虫)将终止执行
-    # 函数不会修改 parse
+    # Check and filter user requests
+    # Unqualified requests (such as crawlers) will terminate execution
+    # Function does not modify parse object
     r = filter_client_request()
     if r is not None:  # 如果函数返回值不是None, 则表示需要响应给用户
         dbgprint('-----EndRequest(filtered out)-----')
         return r
 
-    # 对用户请求进行第一级重定向(隐式重写前的重定向)
-    # 函数不会修改 parse
-    # 此重定向对用户可见, 是301/302/307重定向
+    # First-level redirection of user requests (redirection before implicit rewriting)
+    # Function does not modify parse object
+    # This redirect is visible to users, it is a 301/302/307 redirect
     r = prior_request_redirect()
     if r is not None:
         # 如果返回的是None, 则表示未发生重定向, 照常继续
@@ -2462,10 +2467,10 @@ def main_function(input_path='/'):
         # 下同
         return r
 
-    # 进行请求的隐式重写/重定向
-    # 隐式重写只对 zmirror 内部生效, 对浏览器透明
-    # 重写可能会修改 flask 的内置 request 变量
-    # 可能会修改 parse
+    # Implicit rewrite/redirection of the request
+    # Implicit rewriting only takes effect internally in zmirror, and is transparent to the browser
+    # Rewriting may modify the built-in request variable of flask
+    # May modify parse object
     has_been_rewrited = rewrite_client_request()
 
     # 第一层SSRF检查, 防止请求不允许的网站
