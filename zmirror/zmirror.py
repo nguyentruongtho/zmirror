@@ -1767,7 +1767,7 @@ def send_request(url, method='GET', headers=None, param_get=None, data=None):
     if enable_connection_keep_alive:
         _session = connection_pool.get_session(final_hostname)
     else:
-        _session = requests.Session()
+        _session = get_request_session()
 
     # Send real requests
     parse.time["req_start_time"] = time()

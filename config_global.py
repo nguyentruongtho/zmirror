@@ -89,3 +89,4 @@ human_ip_verification_enabled = True if human_ip_verification_questions or human
 
 developer_do_not_verify_ssl = True
 headers_to_cache = []
+enable_cloudscraper = 'ENABLE_CLOUDSCRAPER' in os.environ

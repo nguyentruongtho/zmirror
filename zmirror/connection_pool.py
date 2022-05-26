@@ -10,9 +10,12 @@ requests的连接在每个session中是自动 keep-alive 的,
 
 以前的版本是线程不安全, 当并发数大时会出现 ConnectionResetError
 """
-from time import time
-import requests
 import threading
+from time import time
+
+import requests
+
+from zmirror.utils import get_request_session
 
 SESSION_TTL = 180  # 在清除过期session时, 会丢弃所有180秒未活动的session
 
@@ -55,7 +58,7 @@ def get_session(domain):
         # 线程池空, 新建一个 session
         session = {
             "domain": domain,
-            "session": requests.Session(),
+            "session": get_request_session(),
         }
     else:
         # 从线程池中取出最近的一个

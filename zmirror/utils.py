@@ -3,6 +3,7 @@ import base64
 import re
 import zlib
 
+import cloudscraper
 import requests
 from fnmatch import fnmatch
 from html import escape as html_escape
@@ -461,3 +462,12 @@ def inject_content_head_last(html, content):
         return html
 
     return html[:head_end_pos] + content + html[head_end_pos:]
+
+
+def get_request_session():
+    if enable_cloudscraper:
+        ret = cloudscraper.CloudScraper()
+        ret.adapters['https://'].ssl_context.check_hostname = False
+        return ret
+    else:
+        return requests.Session()
