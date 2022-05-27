@@ -26,7 +26,7 @@ def main():
         errprint
 
     if my_host_port is None:
-        my_host_port = 80
+        my_host_port = int(os.environ.get('WEB_PORT', os.environ.get('PORT', '8000')))
     try:
         application.run(
             port=my_host_port,
