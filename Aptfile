@@ -1,0 +1,3 @@
+:repo:deb [trusted=yes arch=amd64] https://pkg.cloudflareclient.com/ jammy main
+cloudflare-warp
+gcc
