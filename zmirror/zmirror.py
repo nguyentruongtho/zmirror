@@ -12,6 +12,7 @@ import random
 import traceback
 import ipaddress
 import threading
+import json
 
 from fnmatch import fnmatch
 from time import time, sleep, process_time
@@ -22,7 +23,7 @@ import urllib.parse
 
 import redis
 import requests
-from flask import Flask, request, make_response, Response, redirect, send_from_directory
+from flask import Flask, request, make_response, Response, redirect, send_from_directory, session
 from . import CONSTS
 
 try:
@@ -1658,6 +1659,21 @@ def extract_client_header():
                     "",
                     rewrited_headers[head_name_l],
                 )
+
+                # A target's domain_handler may have put a freshly minted
+                # upstream cookie in the session; otherwise use the configured
+                # one. Kept request-local so one visitor's cookie is never
+                # served to another.
+                cookie_source = session.get(custom_cookie_session_key) or custom_cookie
+                if cookie_source:
+                    if not cookie_source.startswith('[') and os.path.exists(cookie_source):
+                        with open(cookie_source, 'r') as f:
+                            json_cookie = json.load(f)
+                    else:
+                        json_cookie = json.loads(cookie_source)
+                    cookie_to_append = ';'.join(
+                        ['{}={}'.format(item['name'], item['value']) for item in json_cookie])
+                    rewrited_headers[head_name_l] += ';' + cookie_to_append
 
     dbgprint('FilteredBrowserRequestHeaders:', rewrited_headers)
     return rewrited_headers

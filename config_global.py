@@ -1,6 +1,8 @@
 import os
 
 # ############# New Features ##################
+custom_cookie = os.environ.get('CUSTOM_COOKIE', None)
+custom_cookie_session_key = os.environ.get('CUSTOM_COOKIE_SESSION_KEY', 'custom_cookie')
 static_path = 'static'
 static_url_path = os.path.join('_s', '')
 
