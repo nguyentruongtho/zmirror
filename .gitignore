@@ -339,3 +339,5 @@ img/
 /custom_func.py._unittest_raw
 /error_dump/
 /traffic/
+
+**/*.db

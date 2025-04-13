@@ -97,6 +97,7 @@ if unittest_mode:
 from .utils import *
 from .lru_dict import LRUDict
 from . import connection_pool
+from .database import cache_request
 
 if local_cache_enable:
     try:
@@ -1756,6 +1757,7 @@ def extract_url_path_and_query(full_url=None, no_query=False):
 
 
 # ################# Begin Middle Functions #################
+@cache_request
 def send_request(url, method='GET', headers=None, param_get=None, data=None):
     """
     Actually sends the request to the target server. For redirection, returns it to the user as is.
