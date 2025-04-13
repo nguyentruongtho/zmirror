@@ -1,1 +1,1 @@
-web: gunicorn wsgi
+web: openresty -g "daemon off;"
