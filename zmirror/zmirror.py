@@ -1853,7 +1853,7 @@ def generate_our_response():
     # copy and parse remote response
     resp = copy_response(is_streamed=parse.streamed_our_response)
 
-    if parse.time["req_time_header"] >= 0.00001:
+    if parse.time.get("req_time_header", 0) >= 0.00001:
         parse.set_extra_resp_header('X-Header-Req-Time', "%.4f" % parse.time["req_time_header"])
     if parse.time.get("start_time") is not None and not parse.streamed_our_response:
         # remote request time should be excluded when calculating total time
@@ -2590,8 +2590,8 @@ try:
         # 所以在 unittest 中, 每次重载 zmirror 的时候, 都需要重载一次 custom_func
         importlib.reload(importlib.import_module("custom_func"))
     from custom_func import *
-except:  # coverage: exclude
-    pass
+except Exception as e:  # coverage: exclude
+    warnprint('Cannot import custom_func:', e)
 
 if custom_text_rewriter_enable:
     try:

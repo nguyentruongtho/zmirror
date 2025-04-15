@@ -6,10 +6,12 @@ import sys
 current_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, current_dir)
 target_domain = os.environ.get('TARGET_DOMAIN', None)
+domain_dir = None
 if current_dir != '' and target_domain:
     os.chdir(current_dir)
-    domain_dir = os.path.join(current_dir, 'target_domains', target_domain)
-    if os.path.exists(domain_dir):
+    candidate_dir = os.path.join(current_dir, 'target_domains', target_domain)
+    if os.path.exists(candidate_dir):
+        domain_dir = candidate_dir
         sys.path.insert(0, domain_dir)
 
 from zmirror.zmirror import app as application, infoprint, errprint
@@ -58,11 +60,11 @@ def main():
 try:
     import domain_handler
 except Exception as e:
-    infoprint("There is no special domain handlers registered for this domain: " + target_domain)
-    errprint("Exception message: " + e.msg)
+    infoprint("There is no special domain handler registered for this domain:", target_domain)
+    errprint("Exception message:", e)
 else:
     application.register_blueprint(domain_handler.page)
-    infoprint("A domain handler is registered for this domain: " + target_domain)
+    infoprint("A domain handler is registered for this domain:", target_domain)
 
 if __name__ == '__main__':
     main()
